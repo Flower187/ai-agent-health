@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: xue-ai-agent
+  profiles:
+    active: local
+  mvc:
+    pathmatch:
+      # 解决Spring Boot 3.x中路径匹配问题（关键！）
+      matching-strategy: ant_path_matcher
+  ai:
+    dashscope:
+      api-key: sk-2595cb835134452d9fae6c929f0c54b5
+    chat:
+      options:
+      model: qwen-plus
+server:
+  port: 8123
+  servlet:
+    context-path: /api
+# springdoc-openapi config
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.xue.aiagent_me.controller
+# knife4j config
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
