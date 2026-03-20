@@ -1,5 +1,6 @@
 package com.xue.aiagent_me.app;
 
+import com.xue.aiagent_me.advisor.MyLoggerAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor;
@@ -79,7 +80,8 @@ public class FitnessApp {
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(new InMemoryChatMemory())
+                        new MessageChatMemoryAdvisor(new InMemoryChatMemory()),
+                        new MyLoggerAdvisor()
                 )
                 .defaultAdvisors(
                         advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10)
