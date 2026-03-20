@@ -37,8 +37,7 @@ public class HttpAiApiClient {
     }
 
     public static void main(String[] args) {
-        String apiKey = TestApiKey.API_KEY;
-        String response = callQwenModel(apiKey, "你是谁？");
-        System.out.println("Http调用：" + response);
+
+        System.out.println("Http调用：" + callQwenModel(TestApiKey.API_KEY, "你是谁？"));
     }
 }

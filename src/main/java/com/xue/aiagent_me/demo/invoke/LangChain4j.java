@@ -14,7 +14,6 @@ public class LangChain4j {
                 .modelName("qwen-max")
                 .build();
 
-        String answer =  qwenChatModel.chat("你是我的电子榨菜");
-        System.out.println(answer); // Hello World
+        System.out.println(qwenChatModel.chat("你是我的电子榨菜"));
     }
 }
