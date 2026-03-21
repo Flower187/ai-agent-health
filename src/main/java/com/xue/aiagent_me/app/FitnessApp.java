@@ -4,6 +4,8 @@ import cn.hutool.json.JSONUtil;
 import com.xue.aiagent_me.advisor.MyLoggerAdvisor;
 import com.xue.aiagent_me.chatmemory.FileBasedChatMemory;
 import com.xue.aiagent_me.chatmemory.MySQLChatMemory;
+import com.xue.aiagent_me.chatmemory.MybatisPlusChatMemory;
+import com.xue.aiagent_me.service.ChatMemoryService;
 import dev.langchain4j.agent.tool.P;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -91,14 +93,14 @@ public class FitnessApp {
      */
 
 
-    public FitnessApp(ChatModel dashscopeChatModel ,DataSource dataSource) {
+    public FitnessApp(ChatModel dashscopeChatModel , MybatisPlusChatMemory chatMemory) {
         //  String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
         //  ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
         //ChatMemory chatMemory = new InMemoryChatMemory();
+       //  ChatMemory chatMemory = new MySQLChatMemory(dataSource);
 
 
 
-        ChatMemory chatMemory = new MySQLChatMemory(dataSource);
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
