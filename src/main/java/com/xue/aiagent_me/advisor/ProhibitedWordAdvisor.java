@@ -38,6 +38,8 @@ public class ProhibitedWordAdvisor implements CallAroundAdvisor, StreamAroundAdv
         this.prohibitedWords = loadProhibitedWordsFromFile(DEFAULT_PROHIBITED_WORDS_FILE);
         log.info("初始化违禁词Advisor，违禁词数量: {}", prohibitedWords.size());
     }
+
+
     /**
      * 创建违禁词Advisor，从指定文件读取违禁词列表
      */

@@ -3,17 +3,20 @@ package com.xue.aiagent_me.app;
 import cn.hutool.json.JSONUtil;
 import com.xue.aiagent_me.advisor.MyLoggerAdvisor;
 import com.xue.aiagent_me.chatmemory.FileBasedChatMemory;
+import com.xue.aiagent_me.chatmemory.MySQLChatMemory;
 import dev.langchain4j.agent.tool.P;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
 import com.xue.aiagent_me.advisor.ProhibitedWordAdvisor;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -82,20 +85,36 @@ public class FitnessApp {
      */
     private final ChatClient chatClient;
 
+
     /**
      * CharMemory持久化到本地文件的存放路径
      */
-    private static final String CHAT_MEMORY_PATH = System.getProperty("user.dir") + "/chat-memory";
-    public FitnessApp(ChatModel dashscopeChatModel) {
+
+
+    public FitnessApp(ChatModel dashscopeChatModel ,DataSource dataSource) {
+        //  String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
+        //  ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
+        //ChatMemory chatMemory = new InMemoryChatMemory();
+
+
+
+        ChatMemory chatMemory = new MySQLChatMemory(dataSource);
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(new InMemoryChatMemory()),
-                        new MyLoggerAdvisor(),
+                        new MessageChatMemoryAdvisor(chatMemory),
+                        new MyLoggerAdvisor()
+                        /**
+                         * 1.kryo文件读取持久化
                         new MessageChatMemoryAdvisor(
                                 new FileBasedChatMemory(CHAT_MEMORY_PATH)
                         ),
-                        new ProhibitedWordAdvisor()
+
+                             2.敏感词拦截器
+                         new ProhibitedWordAdvisor()
+                         */
+
+
                 )
                 .defaultAdvisors(
                         advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10)
@@ -117,7 +136,7 @@ public class FitnessApp {
     }
 
 
-// 定义 AI 输出的数据模型 FitnessReport
+// 定义 AI 输出的数据模型 FitnessReport(结构化)
     public record FitnessReport(String title, List<String> suggestings) {
     }
     public FitnessReport doChatWithReport(String message, String chatId) {
