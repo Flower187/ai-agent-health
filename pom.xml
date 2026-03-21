@@ -101,11 +101,17 @@
             <artifactId>dashscope-sdk-java</artifactId>
             <version>${dashscope.version}</version>
         </dependency>
-
+        <!-- JSON类型转换 -->
         <dependency>
             <groupId>com.github.victools</groupId>
             <artifactId>jsonschema-generator</artifactId>
             <version>4.38.0</version>
+        </dependency>
+        <!-- 持久化 -->
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <version>5.6.2</version>
         </dependency>
     </dependencies>
 

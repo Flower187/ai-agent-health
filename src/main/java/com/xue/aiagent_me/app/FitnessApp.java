@@ -2,6 +2,7 @@ package com.xue.aiagent_me.app;
 
 import cn.hutool.json.JSONUtil;
 import com.xue.aiagent_me.advisor.MyLoggerAdvisor;
+import com.xue.aiagent_me.chatmemory.FileBasedChatMemory;
 import dev.langchain4j.agent.tool.P;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -81,13 +82,20 @@ public class FitnessApp {
      */
     private final ChatClient chatClient;
 
-    public FitnessApp(ChatModel dashscopeChatModel, ProhibitedWordAdvisor prohibitedWordAdvisor) {
+    /**
+     * CharMemory持久化到本地文件的存放路径
+     */
+    private static final String CHAT_MEMORY_PATH = System.getProperty("user.dir") + "/chat-memory";
+    public FitnessApp(ChatModel dashscopeChatModel) {
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
                         new MessageChatMemoryAdvisor(new InMemoryChatMemory()),
                         new MyLoggerAdvisor(),
-                        prohibitedWordAdvisor
+                        new MessageChatMemoryAdvisor(
+                                new FileBasedChatMemory(CHAT_MEMORY_PATH)
+                        ),
+                        new ProhibitedWordAdvisor()
                 )
                 .defaultAdvisors(
                         advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10)

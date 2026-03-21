@@ -19,15 +19,15 @@ public class FitnessAppTest {
     void testChat(){
         String chatId = UUID.randomUUID().toString();
         // 第一轮对话
-        System.out.println("第一轮对话");
+        System.out.println("第一轮对话：==================================================");
         String aiReply = fitnessApp.doChat("你好，我叫小薛子，今天我要开始锻炼了", chatId);
         Assertions.assertNotNull(aiReply);
         // 第二轮对话
-        System.out.println("第二轮对话");
+        System.out.println("第二轮对话：==================================================");
         aiReply = fitnessApp.doChat("怎么样可以变得更健康", chatId);
         Assertions.assertNotNull(aiReply);
         // 第三轮对话
-        System.out.println("第三轮对话");
+        System.out.println("第三轮对话：==================================================");
         aiReply = fitnessApp.doChat("我的名字是什么，你还记得吗？", chatId);
         Assertions.assertNotNull(aiReply);
     }
