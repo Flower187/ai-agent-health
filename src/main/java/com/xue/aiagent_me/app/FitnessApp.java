@@ -1,5 +1,6 @@
 package com.xue.aiagent_me.app;
 
+import cn.hutool.json.JSONUtil;
 import com.xue.aiagent_me.advisor.MyLoggerAdvisor;
 import dev.langchain4j.agent.tool.P;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,9 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
 import com.xue.aiagent_me.advisor.ProhibitedWordAdvisor;
+
+import java.util.List;
+
 /**
  * 健身App
  */
@@ -103,5 +107,25 @@ public class FitnessApp {
         log.info("AI output: {}", outputText);
         return outputText;
     }
+
+
+// 定义 AI 输出的数据模型 FitnessReport
+    public record FitnessReport(String title, List<String> suggestings) {
+    }
+    public FitnessReport doChatWithReport(String message, String chatId) {
+        FitnessReport fitnessReport=chatClient.prompt().system("每次对话后都要生成健身结果，标题为{用户名}的健身报告，内容为建议列表")
+                .user(message)
+                // 3. 关联对话上下文：通过chatId找到该用户的历史对话，保证建议的连贯性
+                .advisors(
+                        advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                )
+                // 4. 调用AI接口，自动将返回结果转换成FitnessReport对象（结构化）
+                .call()
+                .entity(FitnessReport.class);
+
+        log.info("fitnessReport:{}", JSONUtil.toJsonStr(fitnessReport));
+        return fitnessReport;
+    }
+
 
 }

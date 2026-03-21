@@ -66,5 +66,17 @@ public class FitnessAppTest {
         Assertions.assertTrue(exception.getMessage().contains("违禁词"));
     }
 
+    //测试结构化输出
+    @Test
+    void  doChatWithReport(){
+        String chatId = UUID.randomUUID().toString();
+        String message = "你好，我是程序员cq，我想通过健身缓解颈椎和脖子酸疼，但我不知道该怎么做";
+
+        FitnessApp.FitnessReport fitnessReport=fitnessApp.doChatWithReport(message,chatId);
+        Assertions.assertNotNull(fitnessReport);
+    }
+
+
+
 
 }
