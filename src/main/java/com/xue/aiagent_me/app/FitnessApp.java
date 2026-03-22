@@ -13,6 +13,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
@@ -92,7 +93,8 @@ public class FitnessApp {
 
     @Resource
     private VectorStore appVectorStore;
-
+    @Resource
+    private Advisor appRagCloudAdvisor;
     /**
      * CharMemory持久化到本地文件的存放路径
      */
@@ -161,7 +163,7 @@ public class FitnessApp {
         return fitnessReport;
     }
 
-
+//RAG ：Springai+本地库
     public String doChatWithRagLocal(String message, String chatId) {
         ChatResponse chatResponse = chatClient.prompt().user(message)
                 .advisors(advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
@@ -173,5 +175,17 @@ public class FitnessApp {
 
     }
 
+//RAG：Springai+云数据库
+    public String doChatWithRagCloud(String message, String chatId) {
+        ChatResponse chatResponse = chatClient.prompt()
+                .user(message)
+                .advisors(
+                        advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                )
+                .advisors(appRagCloudAdvisor)
+                .call()
+                .chatResponse();
+        return chatResponse.getResult().getOutput().getText();
+    }
 
 }
