@@ -16,7 +16,7 @@ public class FitnessAppTest {
     private FitnessApp fitnessApp;
 
     @Test
-    void testChat(){
+    void testChat() {
         String chatId = UUID.randomUUID().toString();
         // 第一轮对话
         System.out.println("第一轮对话：==================================================");
@@ -68,11 +68,11 @@ public class FitnessAppTest {
 
     //测试结构化输出
     @Test
-    void  doChatWithReport(){
+    void doChatWithReport() {
         String chatId = UUID.randomUUID().toString();
         String message = "你好，我是程序员cq，我想通过健身缓解颈椎和脖子酸疼，但我不知道该怎么做";
 
-        FitnessApp.FitnessReport fitnessReport=fitnessApp.doChatWithReport(message,chatId);
+        FitnessApp.FitnessReport fitnessReport = fitnessApp.doChatWithReport(message, chatId);
         Assertions.assertNotNull(fitnessReport);
     }
 
@@ -81,9 +81,15 @@ public class FitnessAppTest {
     @Test
     void doChatWithRagLocal() {
         String chatId = UUID.randomUUID().toString();
-        String aiReply=fitnessApp.doChatWithRagLocal("你好，我是程序员小薛子，我想知道减脂和增肌可以同时进行吗",chatId);
+        String aiReply = fitnessApp.doChatWithRagLocal("你好，我是程序员小薛子，我想知道减脂和增肌可以同时进行吗", chatId);
         Assertions.assertNotNull(aiReply);
 
     }
 
+    @Test
+    void doChatWithRagLocalPgVector() {
+        String chatId = UUID.randomUUID().toString();
+        String aiReply = fitnessApp.doChatWithRagLocalPgVector("你好，我是程序员，我想知道减脂和增肌可以同时进行吗", chatId);
+        Assertions.assertNotNull(aiReply);
+    }
 }

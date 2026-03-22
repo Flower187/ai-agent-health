@@ -5,6 +5,7 @@ import com.xue.aiagent_me.advisor.MyLoggerAdvisor;
 import com.xue.aiagent_me.chatmemory.FileBasedChatMemory;
 import com.xue.aiagent_me.chatmemory.MySQLChatMemory;
 import com.xue.aiagent_me.chatmemory.MybatisPlusChatMemory;
+import com.xue.aiagent_me.rag.QueryRewriter;
 import com.xue.aiagent_me.service.ChatMemoryService;
 import dev.langchain4j.agent.tool.P;
 import jakarta.annotation.Resource;
@@ -98,7 +99,8 @@ public class FitnessApp {
     /**
      * CharMemory持久化到本地文件的存放路径
      */
-
+    @Resource
+    private VectorStore pgVectorVectorStore;
 
     public FitnessApp(ChatModel dashscopeChatModel , MybatisPlusChatMemory chatMemory) {
         //  String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
@@ -187,5 +189,37 @@ public class FitnessApp {
                 .chatResponse();
         return chatResponse.getResult().getOutput().getText();
     }
+
+    public String doChatWithRagLocalPgVector(String message, String chatId) {
+        ChatResponse chatResponse = chatClient.prompt()
+                .user(message)
+                .advisors(
+                        advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                )
+                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
+                .call()
+                .chatResponse();
+        return chatResponse.getResult().getOutput().getText();
+    }
+
+//查询重写和翻译
+    @Resource
+    private QueryRewriter queryRewriter;
+
+    public String doChatWithRewrite(String message, String chatId) {
+        message = queryRewriter.doQueryRewrite(message);
+
+        ChatResponse chatResponse = chatClient.prompt()
+                .user(message)
+                .advisors(
+                        advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                )
+                .call()
+                .chatResponse();
+        String outputText = chatResponse.getResult().getOutput().getText();
+        return outputText;
+    }
+
+
 
 }

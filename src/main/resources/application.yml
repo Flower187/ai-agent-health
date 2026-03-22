@@ -15,11 +15,19 @@ spring:
       model: qwen-plus
 
   datasource:
-    url: jdbc:mysql://localhost:3306/healthai?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root # 你的MySQL用户名
-    password: 123456 # 你的MySQL密码
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
+    # 核心修改：PostgreSQL 连接地址（替换为你的实例信息）
+    url: jdbc:postgresql://rm-cn-0yf4phhqb0002ago.rwlb.rds.aliyuncs.com:5432/health_ai_agent?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    # PostgreSQL 用户名（你的高权限账号，比如 root）
+    username: xjj
+    # PostgreSQL 密码（你的实例密码）
+    password: Xue123456
+    # PostgreSQL 驱动类（必须改）
+    driver-class-name: org.postgresql.Driver
+    # 可选：连接池配置（提升性能）
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000
 
 server:
   port: 8123
