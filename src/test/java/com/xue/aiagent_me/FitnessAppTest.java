@@ -77,6 +77,13 @@ public class FitnessAppTest {
     }
 
 
+    //RAG：springai+本地库
+    @Test
+    void doChatWithRagLocal() {
+        String chatId = UUID.randomUUID().toString();
+        String aiReply=fitnessApp.doChatWithRagLocal("你好，我是程序员小薛子，我想知道减脂和增肌可以同时进行吗",chatId);
+        Assertions.assertNotNull(aiReply);
 
+    }
 
 }

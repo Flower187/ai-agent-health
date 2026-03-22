@@ -7,14 +7,17 @@ import com.xue.aiagent_me.chatmemory.MySQLChatMemory;
 import com.xue.aiagent_me.chatmemory.MybatisPlusChatMemory;
 import com.xue.aiagent_me.service.ChatMemoryService;
 import dev.langchain4j.agent.tool.P;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 import com.xue.aiagent_me.advisor.ProhibitedWordAdvisor;
 
@@ -87,6 +90,8 @@ public class FitnessApp {
      */
     private final ChatClient chatClient;
 
+    @Resource
+    private VectorStore appVectorStore;
 
     /**
      * CharMemory持久化到本地文件的存放路径
@@ -154,6 +159,18 @@ public class FitnessApp {
 
         log.info("fitnessReport:{}", JSONUtil.toJsonStr(fitnessReport));
         return fitnessReport;
+    }
+
+
+    public String doChatWithRagLocal(String message, String chatId) {
+        ChatResponse chatResponse = chatClient.prompt().user(message)
+                .advisors(advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
+                .advisors(new QuestionAnswerAdvisor(appVectorStore))
+                .call()
+                .chatResponse();
+        return chatResponse.getResult().getOutput().getText();
+
+
     }
 
 
