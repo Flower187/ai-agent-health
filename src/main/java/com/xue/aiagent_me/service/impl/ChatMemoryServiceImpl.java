@@ -33,7 +33,7 @@ public class ChatMemoryServiceImpl extends ServiceImpl<ChatMemoryMapper, ChatMem
 
     public ChatMemoryServiceImpl() {
         this.jsonConfig = new JSONConfig().setIgnoreNullValue(true);
-        log.info("初始化Mybatis-Plus聊天记忆服务");
+       // log.info("初始化Mybatis-Plus聊天记忆服务");
     }
 
     @Override
@@ -66,7 +66,7 @@ public class ChatMemoryServiceImpl extends ServiceImpl<ChatMemoryMapper, ChatMem
             }
             // 批量保存
             saveBatch(entities);
-            log.info("已添加 {} 条消息到会话 {}", messages.size(), conversationId);
+          //  log.info("已添加 {} 条消息到会话 {}", messages.size(), conversationId);
 
     }
         @Override
@@ -86,7 +86,7 @@ public class ChatMemoryServiceImpl extends ServiceImpl<ChatMemoryMapper, ChatMem
             }
             // 将实体转换为SpringAI消息
             List<Message> messages = convertToMessages(entities);
-            log.info("已从会话 {} 中检索到 {} 条消息", conversationId, messages.size());
+           // log.info("已从会话 {} 中检索到 {} 条消息", conversationId, messages.size());
             return messages;
         }
 
@@ -95,7 +95,7 @@ public class ChatMemoryServiceImpl extends ServiceImpl<ChatMemoryMapper, ChatMem
     public void clearMessages(String conversationId) {
         // 逻辑删除所有会话消息
         int count = baseMapper.logicalDeleteByConversationId(conversationId);
-        log.info("已从会话 {} 中逻辑删除 {} 条消息", conversationId, count);
+       // log.info("已从会话 {} 中逻辑删除 {} 条消息", conversationId, count);
     }
 
     /**
@@ -144,7 +144,7 @@ private List<Message> convertToMessages(List<ChatMemory> entities) {
             case "SYSTEM":
                 return new SystemMessage(content);
             default:
-                log.warn("未知的消息类型: {}", messageType);
+              //  log.warn("未知的消息类型: {}", messageType);
                 return new AssistantMessage("未知消息类型: " + content);
         }
     }

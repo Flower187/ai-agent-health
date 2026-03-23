@@ -19,7 +19,7 @@ public class SpringAiAiInvoke implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        System.out.println("springai调用:" + dashscopeChatModel.call(new Prompt("你好，今天浙江省天气怎么样")).getResult().getOutput().getText());
+       // System.out.println("springai调用:" + dashscopeChatModel.call(new Prompt("你好，今天浙江省天气怎么样")).getResult().getOutput().getText());
     }
 
 

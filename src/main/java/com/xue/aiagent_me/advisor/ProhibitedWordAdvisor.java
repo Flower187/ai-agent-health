@@ -36,7 +36,7 @@ public class ProhibitedWordAdvisor implements CallAroundAdvisor, StreamAroundAdv
      */
     public ProhibitedWordAdvisor() {
         this.prohibitedWords = loadProhibitedWordsFromFile(DEFAULT_PROHIBITED_WORDS_FILE);
-        log.info("初始化违禁词Advisor，违禁词数量: {}", prohibitedWords.size());
+       // log.info("初始化违禁词Advisor，违禁词数量: {}", prohibitedWords.size());
     }
 
 
@@ -45,7 +45,7 @@ public class ProhibitedWordAdvisor implements CallAroundAdvisor, StreamAroundAdv
      */
     public ProhibitedWordAdvisor(String prohibitedWordsFile) {
         this.prohibitedWords = loadProhibitedWordsFromFile(prohibitedWordsFile);
-        log.info("初始化违禁词Advisor，违禁词数量: {}", prohibitedWords.size());
+       // log.info("初始化违禁词Advisor，违禁词数量: {}", prohibitedWords.size());
     }
 
     /**
@@ -65,10 +65,10 @@ public class ProhibitedWordAdvisor implements CallAroundAdvisor, StreamAroundAdv
                     .map(String::trim)
                     .collect(Collectors.toList());
 
-            log.info("从文件 {} 加载违禁词 {} 个", filePath, words.size());
+           // log.info("从文件 {} 加载违禁词 {} 个", filePath, words.size());
             return words;
         } catch (IOException e) {
-            log.error("加载违禁词文件失败！文件路径：{}", filePath, e);
+           // log.error("加载违禁词文件失败！文件路径：{}", filePath, e);
             throw new RuntimeException("违禁词文件加载失败", e);
         }
     }
@@ -84,12 +84,12 @@ public class ProhibitedWordAdvisor implements CallAroundAdvisor, StreamAroundAdv
 
         for (String prohibitedWord : prohibitedWords) {
             if (userText.contains(prohibitedWord)) {
-                log.warn("检测到违禁词：{}，原始请求：{}", prohibitedWord, userText);
+               // log.warn("检测到违禁词：{}，原始请求：{}", prohibitedWord, userText);
                 throw new ProhibitedWordException("您的输入包含违禁词：" + prohibitedWord + "，请修改后重新提交");
             }
         }
 
-        log.debug("请求通过违禁词检查：{}", userText);
+       // log.debug("请求通过违禁词检查：{}", userText);
         return request;
     }
     @Override

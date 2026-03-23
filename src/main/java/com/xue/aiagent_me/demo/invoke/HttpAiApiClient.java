@@ -38,6 +38,6 @@ public class HttpAiApiClient {
 
     public static void main(String[] args) {
 
-        System.out.println("Http调用：" + callQwenModel(TestApiKey.API_KEY, "你是谁？"));
+       // System.out.println("Http调用：" + callQwenModel(TestApiKey.API_KEY, "你是谁？"));
     }
 }

@@ -22,6 +22,10 @@ spring:
     password: 123456 # 你的MySQL密码
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+search-api:
+  api-key: bce-v3/ALTAK-rdydcYaG4nTikbCCt1VlD/429f36b11d35a723907a67e40c0d390a7f5f72c2
+
+
 server:
   port: 8123
   servlet:
