@@ -5,6 +5,7 @@ import com.xue.aiagent_me.advisor.MyLoggerAdvisor;
 import com.xue.aiagent_me.chatmemory.FileBasedChatMemory;
 import com.xue.aiagent_me.chatmemory.MySQLChatMemory;
 import com.xue.aiagent_me.chatmemory.MybatisPlusChatMemory;
+import com.xue.aiagent_me.rag.AppRagCustomAdvisorFactory;
 import com.xue.aiagent_me.rag.QueryRewriter;
 import com.xue.aiagent_me.service.ChatMemoryService;
 import dev.langchain4j.agent.tool.P;
@@ -20,6 +21,7 @@ import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import com.xue.aiagent_me.advisor.ProhibitedWordAdvisor;
 
@@ -91,16 +93,10 @@ public class FitnessApp {
      * 对话客户端
      */
     private final ChatClient chatClient;
-
-    @Resource
-    private VectorStore appVectorStore;
-    @Resource
-    private Advisor appRagCloudAdvisor;
     /**
      * CharMemory持久化到本地文件的存放路径
      */
-    @Resource
-    private VectorStore pgVectorVectorStore;
+
 
     public FitnessApp(ChatModel dashscopeChatModel , MybatisPlusChatMemory chatMemory) {
         //  String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
@@ -147,7 +143,9 @@ public class FitnessApp {
     }
 
 
-// 定义 AI 输出的数据模型 FitnessReport(结构化)
+
+
+    // 定义 AI 输出的数据模型 FitnessReport(结构化)
     public record FitnessReport(String title, List<String> suggestings) {
     }
     public FitnessReport doChatWithReport(String message, String chatId) {
@@ -165,59 +163,46 @@ public class FitnessApp {
         return fitnessReport;
     }
 
-//RAG ：Springai+本地库
-    public String doChatWithRagLocal(String message, String chatId) {
-        ChatResponse chatResponse = chatClient.prompt().user(message)
-                .advisors(advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
-                .advisors(new QuestionAnswerAdvisor(appVectorStore))
-                .call()
-                .chatResponse();
-        return chatResponse.getResult().getOutput().getText();
 
 
-    }
-
-//RAG：Springai+云数据库
-    public String doChatWithRagCloud(String message, String chatId) {
-        ChatResponse chatResponse = chatClient.prompt()
-                .user(message)
-                .advisors(
-                        advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                )
-                .advisors(appRagCloudAdvisor)
-                .call()
-                .chatResponse();
-        return chatResponse.getResult().getOutput().getText();
-    }
-
-    public String doChatWithRagLocalPgVector(String message, String chatId) {
-        ChatResponse chatResponse = chatClient.prompt()
-                .user(message)
-                .advisors(
-                        advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                )
-                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
-                .call()
-                .chatResponse();
-        return chatResponse.getResult().getOutput().getText();
-    }
-
-//查询重写和翻译
+    @Resource(name = "appVectorStore")
+    private VectorStore appVectorStore;
+    @Resource
+    private Advisor appRagCloudAdvisor;
     @Resource
     private QueryRewriter queryRewriter;
 
-    public String doChatWithRewrite(String message, String chatId) {
-        message = queryRewriter.doQueryRewrite(message);
+    @Resource(name = "vectorStore")
+    private VectorStore pgVectorVectorStore;
 
-        ChatResponse chatResponse = chatClient.prompt()
-                .user(message)
-                .advisors(
-                        advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                )
+//RAG ：Springai+本地库
+    public String doChatWithRag(String message, String chatId) {
+        //重写用户输入message的文本
+        String rewrittenMessage = queryRewriter.doQueryRewrite(message);
+        ChatResponse chatResponse = chatClient.prompt().user(rewrittenMessage)
+                .advisors(advisorSpec -> advisorSpec.param(AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY,chatId))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                // 应用知识库问答
+                .advisors(new QuestionAnswerAdvisor(appVectorStore))
+               //RAG：Springai+云数据库  应用增强检索服务（云知识库服务）
+ //             .advisors(appRagCloudAdvisor)
+               //基于 PostgreSQL vector 实现向量数据库
+//               .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
+                // 应用自定义的 RAG 检索增强服务（文档查询器 + 上下文增强器）
+             .advisors(
+                       AppRagCustomAdvisorFactory.createAppRagCustomAdvisor(appVectorStore, "单身")
+             )
+
                 .call()
                 .chatResponse();
-        String outputText = chatResponse.getResult().getOutput().getText();
-        return outputText;
+
+
+
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+
     }
 
 

@@ -29,6 +29,7 @@ public class QueryRewriter {
      * @return 重写后的文本
      */
     public String doQueryRewrite(String prompt) {
+
         return queryTransformer.transform(new Query( prompt)).text();
     }
 }

@@ -77,19 +77,17 @@ public class FitnessAppTest {
     }
 
 
-    //RAG：springai+本地库
-    @Test
-    void doChatWithRagLocal() {
-        String chatId = UUID.randomUUID().toString();
-        String aiReply = fitnessApp.doChatWithRagLocal("你好，我是程序员小薛子，我想知道减脂和增肌可以同时进行吗", chatId);
-        Assertions.assertNotNull(aiReply);
 
+    //查询重写和翻译（文档过滤和检索）
+    @Test
+    void doChatWithRag() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "我已经结婚了，但是发福了，怎么办？";
+        String answer =  fitnessApp.doChatWithRag(message, chatId);
+        Assertions.assertNotNull(answer);
     }
 
-    @Test
-    void doChatWithRagLocalPgVector() {
-        String chatId = UUID.randomUUID().toString();
-        String aiReply = fitnessApp.doChatWithRagLocalPgVector("你好，我是程序员，我想知道减脂和增肌可以同时进行吗", chatId);
-        Assertions.assertNotNull(aiReply);
-    }
+
+
+
 }
