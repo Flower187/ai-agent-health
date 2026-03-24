@@ -88,6 +88,30 @@ public class FitnessAppTest {
     }
 
 
+    @Test
+    void doChatWithTools() {
+        // 测试联网搜索问题的答案
+        testMessage("周末想带女朋友去深圳健身，推荐几个适合情侣的小众打卡地");
 
+        // 测试网页抓取：恋爱案例分析
+        testMessage("最近训练受伤了，看看编程导航网站（codefather.cn）的其他同学是怎么运动康复的？");
 
+        // 测试资源下载：图片下载
+        testMessage("直接下载一张适合做手机壁纸的健身房图片为文件");
+
+        // 测试终端操作：执行代码
+        testMessage("执行 windows 的 dir 命令来查看当前路径下的所有文件");
+
+        // 测试文件操作：保存用户档案
+        testMessage("保存我的健身档案为文件");
+
+        // 测试 PDF 生成
+        testMessage("生成一份‘七夕健身计划’PDF，包含健身中心预订、活动流程和训练清单");
+    }
+
+    private void testMessage(String message) {
+        String chatId = UUID.randomUUID().toString();
+        String answer = fitnessApp.doChatWithTools(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
 }

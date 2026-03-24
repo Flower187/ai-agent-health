@@ -15,6 +15,7 @@ spring:
     vector:
       enable-pgvector: false
 
+
   datasource:
     url: jdbc:mysql://localhost:3306/healthai?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
