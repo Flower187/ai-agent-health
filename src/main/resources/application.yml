@@ -3,13 +3,12 @@ spring:
     name: xue-ai-agent
   profiles:
     active: local
+    include: sensitive
   mvc:
     pathmatch:
       # 解决Spring Boot 3.x中路径匹配问题（关键！）
       matching-strategy: ant_path_matcher
   ai:
-    dashscope:
-      api-key: sk-2595cb835134452d9fae6c929f0c54b5
     chat:
       options:
       model: qwen-plus
@@ -18,14 +17,18 @@ spring:
 
   datasource:
     url: jdbc:mysql://localhost:3306/healthai?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root # 你的MySQL用户名
-    password: 123456 # 你的MySQL密码
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-search-api:
-  api-key: bce-v3/ALTAK-rdydcYaG4nTikbCCt1VlD/429f36b11d35a723907a67e40c0d390a7f5f72c2
-
-
+  mail:
+    host: smtp.qq.com
+    port: 465
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+        socketFactory:
+          class: javax.net.ssl.SSLSocketFactory
 server:
   port: 8123
   servlet:
