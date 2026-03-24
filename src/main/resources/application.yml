@@ -9,6 +9,11 @@ spring:
       # 解决Spring Boot 3.x中路径匹配问题（关键！）
       matching-strategy: ant_path_matcher
   ai:
+    mcp:
+      client:
+        request-timeout: 60000  # 60秒
+        stdio:
+          servers-configuration: classpath:mcp-servers.json
     chat:
       options:
       model: qwen-plus

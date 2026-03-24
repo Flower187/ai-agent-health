@@ -33,3 +33,5 @@ build/
 .vscode/
 # 忽略敏感配置文件
 **/application-sensitive.yml
+# 忽略敏感配置文件
+**/application-sensitive.yml
