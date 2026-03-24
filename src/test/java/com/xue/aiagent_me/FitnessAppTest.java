@@ -117,11 +117,13 @@ public class FitnessAppTest {
 
 
 
+
     @Test
     void doChatWithMcp() {
         String chatId = UUID.randomUUID().toString();
-        String message = "我的另一半居住在深圳宝安区，请帮我找到5公里内合适的健身地点";
+        String message = "我居住在浙江义乌区，请帮我找到5公里内合适的健身地点";
         String answer = fitnessApp.doChatWithMcp(message, chatId);
         Assertions.assertNotNull(answer);
     }
+
 }
