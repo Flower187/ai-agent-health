@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 抽象基础代理类，用于管理代理状态和执行流程。
@@ -190,4 +191,93 @@ public abstract class BaseAgent {
 
         return false;
     }
+
+    /**
+     * 运行代理（流式输出）
+     *
+     * @param userPrompt 用户提示词
+     * @return SseEmitter实例
+     */
+    public SseEmitter runStream(String userPrompt) {
+        // 创建SseEmitter，设置较长的超时时间
+        SseEmitter emitter = new SseEmitter(300000L); // 5分钟超时
+
+        // 使用线程异步处理，避免阻塞主线程
+        CompletableFuture.runAsync(() -> {
+            try {
+                if (this.state != AgentState.IDLE) {
+                    emitter.send("错误：该状态无法运行代理: " + this.state);
+                    emitter.complete();
+                    return;
+                }
+                if (StrUtil.isBlank(userPrompt)) {
+                    emitter.send("错误：不能使用空提示词运行代理");
+                    emitter.complete();
+                    return;
+                }
+
+                // 更改状态
+                setState(AgentState.RUNNING);
+                // 记录消息上下文
+                messageList.add(new UserMessage(userPrompt));
+
+                try {
+                    for (int i = 1; i <= maxSteps && state != AgentState.FINISHED; i++) {
+                        setCurrentStep(i);
+                        log.info("Executing step " + i + "/" + maxSteps);
+
+                        // 单步执行
+                        String stepResult = step();
+                        String result = "Step " + i + ": " + stepResult;
+                        emitter.send(result);
+                    }
+                    // 检查是否超出步骤限制
+                    if (currentStep > maxSteps) {
+                        state = AgentState.FINISHED;
+                        emitter.send("执行结束: 达到最大步骤 (" + maxSteps + ")");
+                    }
+                    emitter.complete();
+
+                } catch (Exception e) {
+                    state = AgentState.ERROR;
+                    log.error("执行智能体失败", e);
+                    try {
+                        emitter.send("执行错误: " + e.getMessage());
+                        emitter.complete();
+                    } catch (Exception ex) {
+                        emitter.completeWithError(ex);
+                    }
+
+                } finally {
+                    // 清理资源
+                    this.cleanup();
+                }
+
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
+        });
+
+        // 设置超时和完成回调
+        emitter.onTimeout(() -> {
+            setState(AgentState.ERROR);
+            this.cleanup();
+            log.warn("SSE connection timed out");
+        });
+
+        emitter.onCompletion(() -> {
+            if (this.state == AgentState.RUNNING) {
+                setState(AgentState.FINISHED);
+            }
+            this.cleanup();
+            log.info("SSE connection completed");
+        });
+
+        return emitter;
+    }
+
+
+
+
+
 }
