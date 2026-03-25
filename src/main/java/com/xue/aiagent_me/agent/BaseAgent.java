@@ -5,6 +5,7 @@ import com.xue.aiagent_me.agent.model.AgentState;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -36,6 +37,9 @@ public abstract class BaseAgent {
     private ChatClient chatClient;
     private List<Message> messageList = new ArrayList<>();
 
+
+    // 循环检测
+    private int duplicateThreshold = 2;
     /**
      * 运行代理
      *
@@ -131,5 +135,59 @@ public abstract class BaseAgent {
                 throw new IOException("发送中断: " + e.getMessage());
             }
         }
+    }
+
+    /**
+     * 处理陷入循环的状态
+     */
+    protected void handleStuckState() {
+        String stuckPrompt = "观察到重复响应。请考虑新的策略，避免重复已尝试过的无效路径。";
+        this.nextStepPrompt = stuckPrompt + "\n" + (this.nextStepPrompt != null ? this.nextStepPrompt : "");
+        log.warn("检测到智能体陷入循环状态。添加额外提示: {}", stuckPrompt);
+    }
+
+    /**
+     * 检查代理是否陷入循环
+     *
+     * @return 是否陷入循环
+     */
+    protected boolean isStuck() {
+        if (messageList.size() < 2) {
+            return false;
+        }
+
+        // 获取最后一条助手消息
+        AssistantMessage lastAssistantMessage = null;
+        for (int i = messageList.size() - 1; i >= 0; i--) {
+            if (messageList.get(i) instanceof AssistantMessage) {
+                lastAssistantMessage = (AssistantMessage) messageList.get(i);
+                break;
+            }
+        }
+
+        if (lastAssistantMessage == null || lastAssistantMessage.getText() == null
+                || lastAssistantMessage.getText().isEmpty()) {
+            return false;
+        }
+
+        // 计算重复内容出现次数
+        int duplicateCount = 0;
+        String lastContent = lastAssistantMessage.getText();
+
+        for (int i = messageList.size() - 2; i >= 0; i--) {
+            Message msg = messageList.get(i);
+            if (msg instanceof AssistantMessage) {
+                AssistantMessage assistantMsg = (AssistantMessage) msg;
+                if (lastContent.equals(assistantMsg.getText())) {
+                    duplicateCount++;
+
+                    if (duplicateCount >= this.duplicateThreshold) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
