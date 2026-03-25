@@ -1,5 +1,6 @@
-package com.xue.aiagent_me.tools;
+package com.xue.aiagent_me.config;
 
+import com.xue.aiagent_me.tools.*;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbacks;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,7 @@ public class ToolRegistration {
                 new WebScrapingTool(),
                 new ResourceDownloadTool(),
                 new PDFGenerationTool(),
-                new TerminalOperationTool()
+                new TerminateTool()
         );
     }
 
